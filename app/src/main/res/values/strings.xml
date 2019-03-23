@@ -1,0 +1,57 @@
+<resources>
+    <!--<string name="country_prompt">choose location</string>-->
+
+    <string name="app_name">Insakay Passenger</string>
+    <string name="home">Insakay</string>
+
+    <string-array name="numbers">
+
+        <item>Indang</item>
+        <item>Trece</item>
+        <item>Dasma</item>
+        <item>Tanza</item>
+    </string-array>
+
+    <string-array name="babaan">
+
+        <item>Indang</item>
+        <item>Kaytapos</item>
+        <item>Mataas na Lupa</item>
+        <item>Sampaguita</item>
+    </string-array>
+
+    <string-array name="route">
+
+        <item>Trece Pasay</item>
+        <item>Idang Pasay</item>
+        <item>Mendez Pasay</item>
+
+    </string-array>
+
+
+    <string-array name="bayad">
+
+        <item> 10 </item>
+        <item> 20 </item>
+        <item> 30 </item>
+        <item> 40 </item>
+        <item> 50 </item>
+        <item> 60 </item>
+        <item> 70 </item>
+        <item> 80 </item>
+        <item> 90 </item>
+        <item> 100 </item>
+
+
+    </string-array>
+
+    <string name="nav_home">Home</string>
+    <string name="nav_account">Account</string>
+    <string name="nav_receipt">Receipt</string>
+    <string name="nav_Operation">OnOperation</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="nav_save">SavedQr</string>
+</resources>
