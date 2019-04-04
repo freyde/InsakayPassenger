@@ -89,14 +89,15 @@ public class SavedQRFragment extends Fragment {
         b= new ArrayList<>();
         File myDir = new File(root + "/saved_images");
         File[] files = myDir.listFiles();
-
-        for (int i = 0; i < files.length; i++) {
-            if (files[i].isDirectory()) {
-            } else {
-                if (files[i].getName().endsWith(".jpg")) {
-                    String  filename= files[i].getName();
-                    a.add(files[i]);
-                    b.add(filename);
+        if(!files.equals(null)) {
+            for (int i = 0; i < files.length; i++) {
+                if (files[i].isDirectory()) {
+                } else {
+                    if (files[i].getName().endsWith(".jpg")) {
+                        String filename = files[i].getName();
+                        a.add(files[i]);
+                        b.add(filename);
+                    }
                 }
             }
         }
