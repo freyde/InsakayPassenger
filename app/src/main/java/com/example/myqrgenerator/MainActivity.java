@@ -36,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
     private GenerateFragment generateFragment;
     private MapActivityFragment mapActivityFragment;
     private SavedQRFragment savedQRFragment;
-    private Button generate,scan;
     private static final int REQ_PERMISSION=120;
     private int STORAGE_PERMISSION_CODE = 1;
     private static int SPLASH_TIMEOUT=2000;
@@ -69,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("failed tanga");
             System.out.println(folder);
         }
-
 
        mMainframe = (FrameLayout) findViewById(R.id.main_frame);
        mMainReceipt = (BottomNavigationView) findViewById(R.id.main_nav);

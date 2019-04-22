@@ -7,11 +7,24 @@
 
     <!-- TODO: Update blank fragment layout -->
 
-    <com.google.android.gms.maps.MapView
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/map">
+        android:layout_height="match_parent">
 
-    </com.google.android.gms.maps.MapView>
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="704dp"
+            android:layout_below="@+id/operatorSpinner"
+            android:layout_marginTop="3dp">
+
+        </com.google.android.gms.maps.MapView>
+
+        <Spinner
+            android:id="@+id/operatorSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </RelativeLayout>
 
 </FrameLayout>
