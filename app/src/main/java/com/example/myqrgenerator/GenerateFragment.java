@@ -53,14 +53,15 @@ public class GenerateFragment extends Fragment implements OnItemSelectedListener
     AESencrp encryptor;
 
     //Variables on Spinners
-    private Spinner operatorSpinner, routeSpinner, originSpinner, destinationSpinner, amountSpinner;
+    private Spinner operatorSpinner, routeSpinner, originSpinner, destinationSpinner, categorySpinner, amountSpinner;
     private ArrayList<String> operatorList, routeList, landmarksList,OriginList,DestinationList,amountList;
     private ArrayAdapter<String> operatorAdapter;
     private ArrayAdapter<String> routeAdapter;
     private ArrayAdapter<String> landmarksAdapter;
+    private ArrayAdapter<String> categoryAdapter;
     private ArrayAdapter amountAdapter;
     private HashMap<String, String> operatorHash, routeHash, landmarksHash, landmarksCov;
-    private String UID, routeID, operator, route, origin, destination, qrInfo,amounting, fare;
+    private String UID, routeID, operator, route, origin, destination, qrInfo,amounting, fare, category, discountedFare;
     private static String rawInfo;
     private TextView fareView, changeView;
 
@@ -101,9 +102,11 @@ public class GenerateFragment extends Fragment implements OnItemSelectedListener
         routeSpinner = (Spinner) mView.findViewById(R.id.route_Spinner);
         originSpinner = (Spinner) mView.findViewById(R.id.origin_Spinner);
         destinationSpinner = (Spinner) mView.findViewById(R.id.destination_Spinner);
+        categorySpinner = (Spinner) mView.findViewById(R.id.spinner_category);
+
         amountSpinner=(Spinner)mView.findViewById(R.id.amount_Spinner);
         fareView = (TextView) mView.findViewById(R.id.fare);
-        changeView = (TextView) mView.findViewById(R.id.cHange);
+        changeView = (TextView) mView.findViewById(R.id.change);
         generate = (Button) mView.findViewById(R.id.generate);
 
 
@@ -130,8 +133,11 @@ public class GenerateFragment extends Fragment implements OnItemSelectedListener
         landmarksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         originSpinner.setAdapter(landmarksAdapter);
-
         destinationSpinner.setAdapter(landmarksAdapter);
+
+        categoryAdapter = new ArrayAdapter<String>(getActivity().getBaseContext(), android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.category));
+        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categorySpinner.setAdapter(categoryAdapter);
 
 
         operatorSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -208,6 +214,7 @@ public class GenerateFragment extends Fragment implements OnItemSelectedListener
 
             }
         });
+
         originSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -217,7 +224,8 @@ public class GenerateFragment extends Fragment implements OnItemSelectedListener
                 String route = routeSpinner.getSelectedItem().toString();
                 String destination = destinationSpinner.getSelectedItem().toString();
                 String origin = parent.getItemAtPosition(position).toString();
-                if(!origin.equals("Select Landmark") && !destination.equals("Select Landmark")) {
+                category = categorySpinner.getSelectedItem().toString();
+                if(!origin.equals("Select Landmark") && !destination.equals("Select Landmark") && !route.equals("Select Route")) {
                     routeID = routeHash.get(route);
                     String originCov = landmarksCov.get(origin);
                     final String destinationCov = landmarksCov.get(destination);
@@ -227,8 +235,22 @@ public class GenerateFragment extends Fragment implements OnItemSelectedListener
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                     System.out.println(dataSnapshot.child(destinationCov).getValue());
-                                    fare = dataSnapshot.child(destinationCov).getValue().toString();
-                                    fareView.setText("Fare: "+ fare);
+                                    if(!category.equals("Regular")) {
+                                        fare = dataSnapshot.child(destinationCov).getValue().toString();
+                                        double fareDouble = Integer.parseInt(fare);
+                                        double discount = 0D;
+                                        int fareInt = Integer.parseInt(fare);
+                                        System.out.println(fareDouble);
+                                        discount = (int) (fareDouble * 0.2D);
+                                        fareInt = (int) (fareDouble - discount);
+                                        System.out.println(fareInt);
+                                        discountedFare = Integer.toString(fareInt);
+                                        fareView.setText("Fare: " + discountedFare + "php");
+
+                                    } else {
+                                        fare = dataSnapshot.child(destinationCov).getValue().toString();
+                                        fareView.setText("Fare: " + fare + " php");
+                                    }
                                 }
 
                                 @Override
@@ -252,12 +274,11 @@ public class GenerateFragment extends Fragment implements OnItemSelectedListener
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 changeView.setText("Change: 0 php");
                 amountSpinner.setSelection(0);
-
-
                 String route = routeSpinner.getSelectedItem().toString();
                 String origin = originSpinner.getSelectedItem().toString();
                 String destination = parent.getItemAtPosition(position).toString();
-                if(!origin.equals("Select Landmark") && !destination.equals("Select Landmark")) {
+                category = categorySpinner.getSelectedItem().toString();
+                if(!origin.equals("Select Landmark") && !destination.equals("Select Landmark") && !route.equals("Select Route")) {
                     routeID = routeHash.get(route);
                     String originCov = landmarksCov.get(origin);
                     final String destinationCov = landmarksCov.get(destination);
@@ -266,9 +287,23 @@ public class GenerateFragment extends Fragment implements OnItemSelectedListener
                             .addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    System.out.println(destinationCov);
                                     System.out.println(dataSnapshot.child(destinationCov).getValue());
-                                    fare = dataSnapshot.child(destinationCov).getValue().toString();
-                                    fareView.setText("Fare: "+ fare +"php");
+                                    if(!category.equals("Regular")) {
+                                        fare = dataSnapshot.child(destinationCov).getValue().toString();
+                                        double fareDouble = Integer.parseInt(fare);
+                                        double discount = 0D;
+                                        int fareInt = Integer.parseInt(fare);
+                                        System.out.println(fareDouble);
+                                        discount = (int) (fareDouble * 0.2D);
+                                        fareInt = (int) (fareDouble - discount);
+                                        System.out.println(fareInt);
+                                        discountedFare = Integer.toString(fareInt);
+                                        fareView.setText("Fare: " + discountedFare + "php");
+                                    } else {
+                                        fare = dataSnapshot.child(destinationCov).getValue().toString();
+                                        fareView.setText("Fare: " + fare + " php");
+                                    }
                                 }
 
                                 @Override
@@ -290,6 +325,58 @@ public class GenerateFragment extends Fragment implements OnItemSelectedListener
             }
         });
 
+        categorySpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                changeView.setText("Change: 0 php");
+                amountSpinner.setSelection(0);
+                route = routeSpinner.getSelectedItem().toString();
+                origin = originSpinner.getSelectedItem().toString();
+                destination = destinationSpinner.getSelectedItem().toString();
+                category = parent.getItemAtPosition(position).toString();
+                if(!origin.equals("Select Landmark") && !destination.equals("Select Landmark") && !route.equals("Select Route")) {
+                    routeID = routeHash.get(route);
+                    String originCov = landmarksCov.get(origin);
+                    final String destinationCov = landmarksCov.get(destination);
+                    System.out.println(UID +" "+routeID);
+                    FirebaseDatabase.getInstance().getReference("users/"+ UID +"/fares/"+ routeID +"/matrix/"+ originCov)
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    System.out.println(dataSnapshot.child(destinationCov).getValue());
+                                    if(!category.equals("Regular")) {
+                                        fare = dataSnapshot.child(destinationCov).getValue().toString();
+                                        double fareDouble = Integer.parseInt(fare);
+                                        double discount = 0D;
+                                        int fareInt = Integer.parseInt(fare);
+                                        System.out.println(fareDouble);
+                                        discount = (int) (fareDouble * 0.2D);
+                                        fareInt = (int) (fareDouble - discount);
+                                        System.out.println(fareInt);
+                                        discountedFare = Integer.toString(fareInt);
+                                        fareView.setText("Fare: " + discountedFare + "php");
+                                    } else {
+                                        fare = dataSnapshot.child(destinationCov).getValue().toString();
+                                        fareView.setText("Fare: " + fare + " php");
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
+                } else {
+                    fareView.setText("Fare: 0 php");
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         amountSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -299,7 +386,7 @@ public class GenerateFragment extends Fragment implements OnItemSelectedListener
                     Integer finalFare = Integer.parseInt(fare);
                     Integer change = payment - finalFare;
                     if(change > 0) {
-                        changeView.setText("Change: " + change.toString() +"php");
+                        changeView.setText("Change: " + change.toString() + "php");
                     } else {
                         new AlertDialog.Builder(getActivity())
                                 .setTitle("Error")
@@ -342,7 +429,7 @@ public class GenerateFragment extends Fragment implements OnItemSelectedListener
                     } else {
                         change = Integer.parseInt(amounting) - Integer.parseInt(fare);
                     }
-                    rawInfo = "INSAKAY."+ operator +"."+route +"."+ origin +"."+ destination +"."+ currentDate + "."+ fare +"."+ amounting +"."+ change;
+                    rawInfo = "INSAKAY."+ operator +"."+route +"."+ origin +"."+ destination +"."+ currentDate +"."+ category + "."+ fare +"."+ amounting +"."+ change +"."+ discountedFare;
 
                 try {
                     qrInfo = encryptor.encrypt(rawInfo);
@@ -459,22 +546,6 @@ public class GenerateFragment extends Fragment implements OnItemSelectedListener
         }
 
     }
-//    public void createDir ()
-//    {
-//
-//        File file =new File(Environment.getExternalStorageDirectory()+"/MyQRgenerator");
-//        boolean success =true;
-//        if (!file.exists()){
-//            Toast.makeText(getApplicaitonContext()),"Directory does not exist,create it"
-//
-//        }
-//
-//
-//
-//
-//    }
-
-
 }
 
 

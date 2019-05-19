@@ -31,8 +31,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 import static android.support.constraint.Constraints.TAG;
 
@@ -52,8 +56,10 @@ public class MapActivityFragment extends Fragment implements
     private ArrayAdapter<String> operatorAdapter;
     private ArrayList<String> conductorList, operatorList;
     private HashMap<String, Double> latitude, longitude;
-    private HashMap<String, String> operators, plates;
+    private HashMap<String, String> operators, plates, times;
     private Context context;
+    private long diff;
+    private Boolean browsing = false;
 
 
     public MapActivityFragment() {
@@ -77,6 +83,7 @@ public class MapActivityFragment extends Fragment implements
         longitude = new HashMap<String, Double>();
         operators = new HashMap<String, String>();
         plates = new HashMap<String, String>();
+        times = new HashMap<String, String>();
         context = getContext();
 
         operatorList.add("Select Operator");
@@ -86,6 +93,7 @@ public class MapActivityFragment extends Fragment implements
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         String opID = "";
                         String name = "";
+
                         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                             name = snapshot.child("info/shortName").getValue().toString();
                             opID = snapshot.child("info/operatorID").getValue().toString();
@@ -143,8 +151,12 @@ public class MapActivityFragment extends Fragment implements
     }
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        MapsInitializer.initialize(context);
-        mGoogleMap = googleMap;
+        if(!browsing) {
+            MapsInitializer.initialize(context);
+            googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+            mGoogleMap = googleMap;
+        }
+
 
         try{
             boolean success =googleMap.setMapStyle(
@@ -157,7 +169,7 @@ public class MapActivityFragment extends Fragment implements
         }
 
         mGoogleMap.clear();
-        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
         System.out.println("Map Updated");
 
         if(conductorList != null && operatorSpinner.getSelectedItem() != "Select Operator") {
@@ -166,17 +178,38 @@ public class MapActivityFragment extends Fragment implements
             int c = 0;
             for(String conductor : conductorList) {
                 if(conductor.startsWith(operators.get(selectedOp))) {
-                    lat = latitude.get(conductor);
-                    lng = longitude.get(conductor);
-                    googleMap.addMarker(new MarkerOptions().position(new LatLng(lat, lng)).title(plates.get(conductor)));
-                    latTotal += lat;
-                    lngTotal += lng;
-                    c++;
+                    String time = "";
+                    SimpleDateFormat timeFormat = new SimpleDateFormat("MM_dd_yy_HH:mm");
+                    String curTime = timeFormat.format(new Date());
+                    time = times.get(conductor);
+                    Date dCurTime, dTime;
+                    try {
+                        dCurTime = timeFormat.parse(curTime);
+                        dTime = timeFormat.parse(time);
+                        diff = dCurTime.getTime() - dTime.getTime();
+                        System.out.println(TimeUnit.MINUTES.convert(diff, TimeUnit.MILLISECONDS));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
+                    if(TimeUnit.MINUTES.convert(diff, TimeUnit.MILLISECONDS) < 15) {
+                        lat = latitude.get(conductor);
+                        lng = longitude.get(conductor);
+                        googleMap.addMarker(new MarkerOptions().position(new LatLng(lat, lng)).title(plates.get(conductor)));
+                        latTotal += lat;
+                        lngTotal += lng;
+                        c++;
+                    }
                 }
             }
-            CameraPosition test = CameraPosition.builder().target(new LatLng(latTotal/c, lngTotal/c)).zoom(10).bearing(0).tilt(45).build();
-            googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(test));
+            CameraPosition test;
+            if(!browsing) {
+                test = CameraPosition.builder().target(new LatLng(latTotal / c, lngTotal / c)).zoom(11).bearing(0).tilt(45).build();
+                googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(test));
+                browsing = true;
+            }
         } else {
+            browsing = false;
             CameraPosition test = CameraPosition.builder().target(new LatLng(12.867031, 121.766552)).zoom(5).bearing(0).tilt(45).build();
             googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(test));
         }
@@ -216,10 +249,12 @@ public class MapActivityFragment extends Fragment implements
                             Double lat = Double.parseDouble(snapshot.child("lat").getValue().toString());
                             Double longi = Double.parseDouble(snapshot.child("long").getValue().toString());
                             String plateNo = snapshot.child("busPlate").getValue().toString();
+                            String time = snapshot.child("time").getValue().toString();
                             conductorList.add(conductor);
                             latitude.put(conductor, lat);
                             longitude.put(conductor, longi);
                             plates.put(conductor, plateNo);
+                            times.put(conductor, time);
                             System.out.println("conductor: "+ conductor);
                             System.out.println(latitude);
 

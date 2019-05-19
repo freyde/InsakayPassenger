@@ -4,28 +4,11 @@
     <string name="app_name">Insakay Passenger</string>
     <string name="home">Insakay</string>
 
-    <string-array name="numbers">
-
-        <item>Indang</item>
-        <item>Trece</item>
-        <item>Dasma</item>
-        <item>Tanza</item>
-    </string-array>
-
-    <string-array name="babaan">
-
-        <item>Indang</item>
-        <item>Kaytapos</item>
-        <item>Mataas na Lupa</item>
-        <item>Sampaguita</item>
-    </string-array>
-
-    <string-array name="route">
-
-        <item>Trece Pasay</item>
-        <item>Idang Pasay</item>
-        <item>Mendez Pasay</item>
-
+    <string-array name="category">
+        <item>Regular</item>
+        <item>Student</item>
+        <item>Senior Citizen</item>
+        <item>PWD</item>
     </string-array>
 
 
@@ -53,8 +36,6 @@
         <item> 200 </item>
         <item> 500 </item>
         <item> 1000 </item>
-
-
     </string-array>
 
     <string name="nav_home">Home</string>
